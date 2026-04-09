@@ -1,20 +1,25 @@
-import type { PitchingPhase } from '../../types';
 import {
   CircleDot, ArrowUp, MoveRight, Zap, RotateCw, Flame, Wind,
+  Activity, Video, AlertTriangle,
 } from 'lucide-react';
+import type { PitchingPhase } from '../../types';
+import { phases } from '../../data';
 
 const iconMap: Record<string, React.ElementType> = {
   CircleDot, ArrowUp, MoveRight, Zap, RotateCw, Flame, Wind,
 };
 
-const colorMap: Record<string, { bg: string; text: string; border: string }> = {
-  slate:  { bg: 'bg-slate-50',  text: 'text-slate-700',  border: 'border-slate-200' },
-  indigo: { bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-200' },
-  orange: { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200' },
-  yellow: { bg: 'bg-yellow-50', text: 'text-yellow-700', border: 'border-yellow-200' },
-  purple: { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200' },
-  red:    { bg: 'bg-red-50',    text: 'text-red-700',    border: 'border-red-200' },
-  teal:   { bg: 'bg-teal-50',   text: 'text-teal-700',   border: 'border-teal-200' },
+const colorMap: Record<string, {
+  bg: string; text: string; border: string;
+  headerBg: string; stepBg: string; stepText: string;
+}> = {
+  slate:  { bg: 'bg-slate-50',  text: 'text-slate-700',  border: 'border-slate-200',  headerBg: 'bg-slate-900',  stepBg: 'bg-slate-100', stepText: 'text-slate-600' },
+  indigo: { bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-200', headerBg: 'bg-indigo-600', stepBg: 'bg-indigo-50', stepText: 'text-indigo-600' },
+  orange: { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200', headerBg: 'bg-orange-500', stepBg: 'bg-orange-50', stepText: 'text-orange-600' },
+  yellow: { bg: 'bg-yellow-50', text: 'text-yellow-700', border: 'border-yellow-200', headerBg: 'bg-yellow-500', stepBg: 'bg-yellow-50', stepText: 'text-yellow-700' },
+  purple: { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200', headerBg: 'bg-purple-600', stepBg: 'bg-purple-50', stepText: 'text-purple-600' },
+  red:    { bg: 'bg-red-50',    text: 'text-red-700',    border: 'border-red-200',    headerBg: 'bg-red-500',    stepBg: 'bg-red-50',    stepText: 'text-red-600' },
+  teal:   { bg: 'bg-teal-50',   text: 'text-teal-700',   border: 'border-teal-200',   headerBg: 'bg-teal-500',   stepBg: 'bg-teal-50',   stepText: 'text-teal-600' },
 };
 
 interface PhaseHeaderProps {
@@ -24,47 +29,85 @@ interface PhaseHeaderProps {
 
 export function PhaseHeader({ phase, drillCount }: PhaseHeaderProps) {
   const Icon = iconMap[phase.icon] ?? CircleDot;
-  const colors = colorMap[phase.color] ?? colorMap.slate;
+  const c = colorMap[phase.color] ?? colorMap.slate;
 
   return (
-    <div className="border-b border-gray-200 bg-white px-6 py-6">
-      <div className="flex items-start gap-4">
-        <div className={`w-11 h-11 rounded-xl ${colors.bg} ${colors.border} border flex items-center justify-center flex-shrink-0`}>
-          <Icon size={20} className={colors.text} />
+    <div>
+      {/* Colored header band */}
+      <div className={`${c.headerBg} px-5 pt-5 pb-4`}>
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center flex-shrink-0">
+            <Icon size={20} className="text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] font-semibold text-white/60 uppercase tracking-wider">
+              Phase {phase.order} of {phases.length}
+            </p>
+            <h1 className="text-lg font-bold text-white leading-tight mt-0.5">{phase.name}</h1>
+          </div>
         </div>
 
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">
-              Phase {phase.order}
-            </span>
-          </div>
-          <h1 className="text-xl font-bold text-gray-900 leading-tight">{phase.name}</h1>
-          <p className="text-sm text-gray-500 mt-1.5 leading-relaxed">{phase.description}</p>
+        {/* Phase progress dots */}
+        <div className="flex items-center gap-1.5 mt-4">
+          {phases.map((p) => (
+            <div
+              key={p.id}
+              className={`h-1 flex-1 rounded-full transition-all ${
+                p.id === phase.id
+                  ? 'bg-white'
+                  : p.order < phase.order
+                  ? 'bg-white/50'
+                  : 'bg-white/20'
+              }`}
+            />
+          ))}
         </div>
       </div>
 
-      {/* Key Metrics */}
-      {phase.keyMetrics.length > 0 && (
-        <div className="mt-4 flex flex-wrap gap-2">
-          {phase.keyMetrics.map((m) => (
-            <div
-              key={m.label}
-              title={m.description}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border ${colors.bg} ${colors.border} cursor-help`}
-            >
-              <span className="text-xs text-gray-500">{m.label}</span>
-              <span className={`text-xs font-bold ${colors.text}`}>
-                {m.value}{m.unit ? ` ${m.unit}` : ''}
-              </span>
-            </div>
-          ))}
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border bg-gray-50 border-gray-200">
-            <span className="text-xs text-gray-500">드릴</span>
-            <span className="text-xs font-bold text-gray-700">{drillCount}개</span>
+      {/* Description + stats */}
+      <div className="bg-white border-b border-gray-200 px-5 py-4 space-y-4">
+        <p className="text-sm text-gray-600 leading-relaxed">{phase.description}</p>
+
+        {/* Stats row */}
+        <div className="grid grid-cols-3 gap-2">
+          <div className={`flex flex-col items-center py-2.5 rounded-xl ${c.bg} border ${c.border}`}>
+            <Video size={14} className={c.text} />
+            <p className={`text-base font-bold mt-1 ${c.text}`}>{drillCount}</p>
+            <p className="text-[10px] text-gray-500">드릴</p>
+          </div>
+          <div className={`flex flex-col items-center py-2.5 rounded-xl ${c.bg} border ${c.border}`}>
+            <Activity size={14} className={c.text} />
+            <p className={`text-base font-bold mt-1 ${c.text}`}>{phase.biomechanicsNotes.details.length}</p>
+            <p className="text-[10px] text-gray-500">메카닉스</p>
+          </div>
+          <div className={`flex flex-col items-center py-2.5 rounded-xl ${c.bg} border ${c.border}`}>
+            <AlertTriangle size={14} className={c.text} />
+            <p className={`text-base font-bold mt-1 ${c.text}`}>{phase.commonFaults.length}</p>
+            <p className="text-[10px] text-gray-500">폼 오류</p>
           </div>
         </div>
-      )}
+
+        {/* Key Metrics */}
+        {phase.keyMetrics.length > 0 && (
+          <div className="space-y-1.5">
+            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">핵심 수치</p>
+            <div className="flex flex-wrap gap-2">
+              {phase.keyMetrics.map((m) => (
+                <div
+                  key={m.label}
+                  title={m.description}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border ${c.bg} ${c.border} cursor-help`}
+                >
+                  <span className="text-[11px] text-gray-500">{m.label}</span>
+                  <span className={`text-[11px] font-bold ${c.text}`}>
+                    {m.value}{m.unit ? ` ${m.unit}` : ''}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
