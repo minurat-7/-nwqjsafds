@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ExternalLink, Package, Tag, Play, Youtube } from 'lucide-react';
+import { Package, Tag, Play, ExternalLink } from 'lucide-react';
 import { Modal } from '../ui/Modal';
 import { Badge } from '../ui/Badge';
 import type { Drill } from '../../types';
@@ -82,7 +82,7 @@ export function DrillModal({ drill, onClose }: DrillModalProps) {
 
               {/* Bottom label */}
               <div className="absolute bottom-3 left-0 right-0 flex items-center justify-center gap-1.5">
-                <Youtube size={13} className="text-white/80" />
+                <ExternalLink size={13} className="text-white/80" />
                 <span className="text-xs text-white/80 font-medium">YouTube에서 재생</span>
               </div>
             </div>
@@ -95,7 +95,7 @@ export function DrillModal({ drill, onClose }: DrillModalProps) {
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-1.5 px-3 py-2.5 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold rounded-xl transition-colors"
               >
-                <Youtube size={14} />
+                <Play size={13} fill="white" />
                 YouTube 앱으로 보기
               </a>
               <button
